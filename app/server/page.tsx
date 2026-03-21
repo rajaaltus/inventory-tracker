@@ -1,56 +1,18 @@
-import Home from "./inner";
-import { preloadQuery, preloadedQueryResult } from "convex/nextjs";
-import { api } from "@/convex/_generated/api";
-import Image from "next/image";
-
 export default async function ServerPage() {
-  const preloaded = await preloadQuery(api.myFunctions.listNumbers, {
-    count: 3,
-  });
-
-  const data = preloadedQueryResult(preloaded);
-
   return (
     <main className="p-8 flex flex-col gap-6 mx-auto max-w-2xl">
-      <div className="flex items-center justify-center gap-4">
-        <div className="flex items-center gap-4">
-          <Image
-            src="/convex.svg"
-            alt="Convex Logo"
-            width={48}
-            height={48}
-          />
-          <div className="w-px h-12 bg-border" />
-          <Image
-            src="/nextjs-icon-light-background.svg"
-            alt="Next.js Logo"
-            width={48}
-            height={48}
-            className="dark:hidden"
-          />
-          <Image
-            src="/nextjs-icon-dark-background.svg"
-            alt="Next.js Logo"
-            width={48}
-            height={48}
-            className="hidden dark:block"
-          />
-        </div>
-        <h1 className="text-4xl font-bold text-foreground">
-          Convex + Next.js
-        </h1>
-      </div>
+      <h1 className="text-4xl font-bold text-foreground">
+        Server-Side Rendering Demo
+      </h1>
       <div className="flex flex-col gap-4 rounded-xl border border-border bg-muted p-6 shadow-sm">
         <h2 className="text-xl font-bold text-foreground">
-          Non-reactive server-loaded data
+          Placeholder
         </h2>
-        <code className="overflow-x-auto rounded-lg border border-border bg-card p-4">
-          <pre className="text-sm text-muted-foreground">
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        </code>
+        <p className="text-sm text-muted-foreground">
+          This page will demonstrate server-side data preloading with Convex
+          once query functions are added to the backend.
+        </p>
       </div>
-      <Home preloaded={preloaded} />
     </main>
   );
 }
