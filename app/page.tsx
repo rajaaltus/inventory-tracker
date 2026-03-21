@@ -1,188 +1,308 @@
 "use client";
 
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
-import { api } from "@/src/convex/_generated/api";
 import Link from "next/link";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import {
+  Monitor,
+  Users,
+  Upload,
+  LayoutDashboard,
+  ArrowRight,
+  Package,
+  ShieldCheck,
+  ChevronRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useEffect, useRef, useState } from "react";
 
-export default function Home() {
-  return (
-    <>
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row justify-between items-center shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
-            <Image src="/convex.svg" alt="Convex Logo" width={32} height={32} />
-            <div className="w-px h-8 bg-slate-300 dark:bg-slate-600"></div>
-            <Image
-              src="/nextjs-icon-light-background.svg"
-              alt="Next.js Logo"
-              width={32}
-              height={32}
-              className="dark:hidden"
-            />
-            <Image
-              src="/nextjs-icon-dark-background.svg"
-              alt="Next.js Logo"
-              width={32}
-              height={32}
-              className="hidden dark:block"
-            />
-          </div>
-          <h1 className="font-semibold text-slate-800 dark:text-slate-200">
-            Convex + Next.js + Convex Auth
-          </h1>
-        </div>
-        <SignOutButton />
-      </header>
-      <main className="p-8 flex flex-col gap-8">
-        <Content />
-      </main>
-    </>
-  );
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
 }
 
-function SignOutButton() {
-  const { isAuthenticated } = useConvexAuth();
-  const { signOut } = useAuthActions();
-  const router = useRouter();
+export default function LandingPage() {
   return (
-    <>
-      {isAuthenticated && (
-        <button
-          className="bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
-          onClick={() =>
-            void signOut().then(() => {
-              router.push("/signin");
-            })
-          }
-        >
-          Sign out
-        </button>
-      )}
-    </>
-  );
-}
-
-function Content() {
-  return (
-    <div className="flex flex-col gap-4 max-w-lg mx-auto">
-      <div>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
-          You are signed into a demo application using Convex Auth.
-        </p>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
-          This app can generate random numbers and store them in your Convex
-          database.
-        </p>
-      </div>
-
-      <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
-
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-xl text-slate-800 dark:text-slate-200">
-          Number generator
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">
-          Click the button below to generate a new number. The data is persisted
-          in the Convex cloud database - open this page in another window and
-          see the data sync automatically!
-        </p>
-      </div>
-
-      <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
-
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-xl text-slate-800 dark:text-slate-200">
-          Making changes
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">
-          Edit{" "}
-          <code className="text-sm font-semibold font-mono bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md border border-slate-300 dark:border-slate-600">
-            convex/myFunctions.ts
-          </code>{" "}
-          to change the backend.
-        </p>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">
-          Edit{" "}
-          <code className="text-sm font-semibold font-mono bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md border border-slate-300 dark:border-slate-600">
-            app/page.tsx
-          </code>{" "}
-          to change the frontend.
-        </p>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">
-          See the{" "}
-          <Link
-            href="/server"
-            className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-medium underline decoration-2 underline-offset-2 transition-colors"
-          >
-            /server route
-          </Link>{" "}
-          for an example of loading data in a server component
-        </p>
-      </div>
-
-      <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
-
-      <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-          Useful resources
-        </h2>
-        <div className="flex gap-4">
-          <div className="flex flex-col gap-4 w-1/2">
-            <ResourceCard
-              title="Convex docs"
-              description="Read comprehensive documentation for all Convex features."
-              href="https://docs.convex.dev/home"
-            />
-            <ResourceCard
-              title="Stack articles"
-              description="Learn about best practices, use cases, and more from a growing
-            collection of articles, videos, and walkthroughs."
-              href="https://stack.convex.dev"
-            />
-          </div>
-          <div className="flex flex-col gap-4 w-1/2">
-            <ResourceCard
-              title="Templates"
-              description="Browse our collection of templates to get started quickly."
-              href="https://www.convex.dev/templates"
-            />
-            <ResourceCard
-              title="Discord"
-              description="Join our developer community to ask questions, trade tips & tricks,
-            and show off your projects."
-              href="https://www.convex.dev/community"
-            />
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <Nav />
+      <Hero />
+      <Features />
+      <Stats />
+      <CTA />
+      <Footer />
     </div>
   );
 }
 
-function ResourceCard({
-  title,
-  description,
-  href,
-}: {
-  title: string;
-  description: string;
-  href: string;
-}) {
+/* ─── Navigation ─── */
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 16);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
   return (
-    <a
-      href={href}
-      className="flex flex-col gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 p-5 rounded-xl h-36 overflow-auto border border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] group cursor-pointer"
-      target="_blank"
+    <header
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-xs"
+          : "bg-transparent"
+      }`}
     >
-      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">
-        {title} →
-      </h3>
-      <p className="text-xs text-slate-600 dark:text-slate-400">
-        {description}
-      </p>
-    </a>
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
+        <div className="flex items-center gap-2.5">
+          <Package className="size-5 text-primary" strokeWidth={2.2} />
+          <span className="font-heading text-sm font-semibold tracking-tight text-foreground">
+            AssetTracker
+          </span>
+        </div>
+        <nav className="hidden sm:flex items-center gap-8 text-xs text-muted-foreground font-medium">
+          <a href="#features" className="hover:text-foreground transition-colors">
+            Features
+          </a>
+          <a href="#overview" className="hover:text-foreground transition-colors">
+            Overview
+          </a>
+        </nav>
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
+          <Link href="/signin">
+            <Button size="sm" variant="outline" className="text-xs h-8 px-4">
+              Sign in
+              <ArrowRight className="size-3 ml-1.5" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── Hero ─── */
+function Hero() {
+  return (
+    <section className="relative pt-36 pb-24 sm:pt-44 sm:pb-32 px-6">
+      <div className="absolute inset-0 -z-10 bg-muted/40" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-primary/5" />
+
+      <div className="max-w-2xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground mb-6 border border-border rounded-full px-3.5 py-1.5">
+          <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+          Internal Tool
+        </div>
+        <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-balance text-foreground">
+          Track every asset.
+          <br />
+          <span className="text-muted-foreground">Know who has what.</span>
+        </h1>
+        <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed max-w-md mx-auto">
+          A lightweight inventory system for hardware and software licenses
+          assigned to your team.
+        </p>
+        <div className="mt-9 flex items-center justify-center gap-3">
+          <Link href="/dashboard">
+            <Button size="lg" className="text-sm h-11 px-6">
+              Get started
+              <ChevronRight className="size-4 ml-1" />
+            </Button>
+          </Link>
+          <a href="#features">
+            <Button variant="ghost" size="lg" className="text-sm h-11 px-6 text-muted-foreground">
+              Learn more
+            </Button>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Features ─── */
+const features = [
+  {
+    icon: Users,
+    title: "Asset-to-Employee Linking",
+    description:
+      "Assign laptops, monitors, and licenses to team members with relational data you can query instantly.",
+  },
+  {
+    icon: Upload,
+    title: "Receipt & Photo Uploads",
+    description:
+      "Attach purchase receipts or equipment photos directly to any asset record using built-in file storage.",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Admin Dashboard",
+    description:
+      "See available vs. assigned inventory at a glance. Filter by type, status, or employee.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Role-Based Access",
+    description:
+      "Conditionally render views based on user roles — admins manage, employees view their own assets.",
+  },
+];
+
+function Features() {
+  const { ref, visible } = useInView();
+
+  return (
+    <section id="features" ref={ref} className="px-6 py-20 sm:py-28">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-14">
+          <p className="text-xs font-mono uppercase tracking-widest text-primary mb-2">
+            Capabilities
+          </p>
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Everything you need, nothing you don&rsquo;t
+          </h2>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          {features.map((f, i) => (
+            <Card
+              key={f.title}
+              className={`group border-border bg-card transition-all duration-500 hover:border-primary/25 hover:shadow-sm ${
+                visible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+              style={{ transitionDelay: `${i * 80}ms` }}
+            >
+              <CardContent className="p-6 sm:p-7">
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 size-9 rounded-lg bg-primary/8 flex items-center justify-center mt-0.5 group-hover:bg-primary/12 transition-colors">
+                    <f.icon
+                      className="size-4 text-primary"
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-sm font-semibold mb-1.5 text-foreground">
+                      {f.title}
+                    </h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      {f.description}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Stats / Overview ─── */
+function Stats() {
+  const { ref, visible } = useInView();
+
+  const items = [
+    { value: "Real-time", label: "Sync across all devices" },
+    { value: "Relational", label: "Assets linked to employees" },
+    { value: "File Storage", label: "Receipts & photos attached" },
+  ];
+
+  return (
+    <section id="overview" ref={ref} className="px-6 py-16 sm:py-24">
+      <div className="max-w-4xl mx-auto">
+        <div
+          className={`rounded-2xl border border-border bg-muted/50 p-8 sm:p-12 transition-all duration-700 ${
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="grid sm:grid-cols-3 gap-8 sm:gap-6 text-center">
+            {items.map((item, i) => (
+              <div
+                key={item.label}
+                className={`${
+                  i < items.length - 1
+                    ? "sm:border-r sm:border-border"
+                    : ""
+                }`}
+              >
+                <p className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                  {item.value}
+                </p>
+                <p className="text-muted-foreground text-xs mt-1">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CTA ─── */
+function CTA() {
+  const { ref, visible } = useInView();
+
+  return (
+    <section ref={ref} className="px-6 py-16 sm:py-24">
+      <div
+        className={`max-w-2xl mx-auto text-center transition-all duration-700 ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
+      >
+        <Monitor className="size-8 text-primary mx-auto mb-5" strokeWidth={1.5} />
+        <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+          Ready to organize your inventory?
+        </h2>
+        <p className="text-muted-foreground text-sm mt-3 max-w-sm mx-auto">
+          Sign in to start tracking assets, uploading receipts, and managing
+          your team&rsquo;s equipment.
+        </p>
+        <div className="mt-8">
+          <Link href="/dashboard">
+            <Button size="lg" className="text-sm h-11 px-8">
+              Open Dashboard
+              <ArrowRight className="size-4 ml-1.5" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ─── */
+function Footer() {
+  return (
+    <footer className="border-t border-border px-6 py-8">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <Package className="size-3.5 text-primary" strokeWidth={2.2} />
+          <span className="font-heading font-medium text-muted-foreground">
+            AssetTracker
+          </span>
+        </div>
+        <p>Built with Next.js & Convex</p>
+      </div>
+    </footer>
   );
 }
