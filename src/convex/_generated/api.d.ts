@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as employees from "../employees.js";
 import type * as helpers_auth from "../helpers/auth.js";
 import type * as http from "../http.js";
 import type * as queries_authHelpersTest from "../queries/authHelpersTest.js";
@@ -21,6 +22,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  employees: typeof employees;
   "helpers/auth": typeof helpers_auth;
   http: typeof http;
   "queries/authHelpersTest": typeof queries_authHelpersTest;

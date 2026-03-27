@@ -217,9 +217,11 @@ function EmptyState({ type = "assets" }: { type?: string }) {
         Add your first {type === "employees" ? "team member" : "asset"} to get
         started tracking your inventory.
       </p>
-      <Button size="sm" className="text-xs h-8 px-4">
-        <Plus className="size-3.5 mr-1.5" />
-        Add {type === "employees" ? "Employee" : "Asset"}
+      <Button asChild size="sm" className="text-xs h-8 px-4">
+        <Link href={type === "employees" ? "/dashboard/employees" : "/dashboard/assets/new"}>
+          <Plus className="size-3.5 mr-1.5" />
+          Add {type === "employees" ? "Employee" : "Asset"}
+        </Link>
       </Button>
     </div>
   );
