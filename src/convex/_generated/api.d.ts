@@ -13,6 +13,7 @@ import type * as employees from "../employees.js";
 import type * as helpers_auth from "../helpers/auth.js";
 import type * as http from "../http.js";
 import type * as queries_authHelpersTest from "../queries/authHelpersTest.js";
+import type * as seed from "../seed.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   "helpers/auth": typeof helpers_auth;
   http: typeof http;
   "queries/authHelpersTest": typeof queries_authHelpersTest;
+  seed: typeof seed;
 }>;
 
 /**

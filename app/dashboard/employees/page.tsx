@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmployeeForm } from "@/components/employee-form";
+import { EmployeeList } from "@/components/employee-list";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -26,6 +27,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function EmployeesPage() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const currentEmployee = useQuery(api.employees.current);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,8 +36,25 @@ export default function EmployeesPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) return <PageSkeleton />;
+  if (isLoading || currentEmployee === undefined) return <PageSkeleton />;
   if (!isAuthenticated) return null;
+
+  if (currentEmployee === null || currentEmployee.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="text-center max-w-md space-y-4">
+          <ShieldCheck className="size-12 text-destructive mx-auto" />
+          <h1 className="text-2xl font-bold tracking-tight">Access Denied</h1>
+          <p className="text-muted-foreground text-sm">
+            You need administrator privileges to view and manage the employee roster.
+          </p>
+          <Button asChild className="mt-4">
+            <Link href="/dashboard">Return to Dashboard</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -64,6 +83,20 @@ export default function EmployeesPage() {
             </p>
           </div>
 
+          {/* Employee list card */}
+          <Card className="border-border bg-card mb-6">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base font-semibold">
+                Employee Roster
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Manage your team's access and assignments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <EmployeeList />
+            </CardContent>
+          </Card>
 
           {/* Create employee card */}
           <Card className="border-border bg-card">
