@@ -1,7 +1,19 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAdmin } from "./helpers/auth";
+import { getCurrentEmployee, requireAdmin } from "./helpers/auth";
 import { auth } from "./auth";
+
+/**
+ * Get the current user's role.
+ */
+export const getMyRole = query({
+  args: {},
+  handler: async (ctx) => {
+    const employee = await getCurrentEmployee(ctx);
+    if (!employee) return null;
+    return { role: employee.role };
+  },
+});
 
 /**
  * Create a new employee profile.
@@ -16,6 +28,17 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
+    
+    // Check if the user already has an employee profile
+    const existing = await ctx.db
+      .query("employees")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (existing) {
+      throw new Error("This user already has an employee profile.");
+    }
+
     return await ctx.db.insert("employees", {
       userId: args.userId,
       department: args.department,
@@ -49,7 +72,7 @@ export const current = query({
     return await ctx.db
       .query("employees")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
+      .first();
   },
 });
 
@@ -88,5 +111,52 @@ export const update = mutation({
       Object.entries(updates).filter(([_, val]) => val !== undefined)
     );
     await ctx.db.patch(id, cleanUpdates);
+  },
+});
+/**
+ * One-off mutation to cleanup duplicates and update a specific user's role.
+ */
+export const cleanupAndUpdateRole = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // 1. Cleanup Duplicates
+    const allEmployees = await ctx.db.query("employees").collect();
+    const seenUserIds = new Set();
+    let removedCount = 0;
+
+    for (const emp of allEmployees) {
+      if (seenUserIds.has(emp.userId)) {
+        await ctx.db.delete(emp._id);
+        removedCount++;
+      } else {
+        seenUserIds.add(emp.userId);
+      }
+    }
+
+    // 2. Update specific user
+    const targetEmail = "deekshashetti96@gmail.com";
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), targetEmail))
+      .first();
+
+    let updatedRoleCount = 0;
+    if (user) {
+      const employee = await ctx.db
+        .query("employees")
+        .withIndex("by_userId", (q) => q.eq("userId", user._id))
+        .first();
+
+      if (employee) {
+        await ctx.db.patch(employee._id, { role: "employee" });
+        updatedRoleCount++;
+      }
+    }
+
+    return {
+      removedDuplicates: removedCount,
+      updatedRoleFor: user ? targetEmail : "User not found",
+      updatedRoleCount,
+    };
   },
 });

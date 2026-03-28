@@ -12,7 +12,7 @@ export async function requireAdmin(ctx: QueryCtx | MutationCtx) {
   const employee = await ctx.db
     .query("employees")
     .withIndex("by_userId", (q) => q.eq("userId", userId))
-    .unique();
+    .first();
 
   if (!employee || employee.role !== "admin") {
     throw new Error("Unauthorized: admin role required");
@@ -26,6 +26,6 @@ export async function getCurrentEmployee(ctx: QueryCtx | MutationCtx) {
   return await ctx.db
     .query("employees")
     .withIndex("by_userId", (q) => q.eq("userId", userId))
-    .unique();
+    .first();
 }
 
