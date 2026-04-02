@@ -1,9 +1,14 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { api } from "@/src/convex/_generated/api";
 import { Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { AssetTable } from "@/components/asset-table";
 
 export function EmployeeDashboard() {
+  const assets = useQuery(api.assets.list);
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="mb-8">
@@ -15,20 +20,20 @@ export function EmployeeDashboard() {
         </p>
       </div>
 
-      <StatsCards />
+      <StatsCards count={assets?.length} />
 
       <div className="mt-8">
-        <EmptyState />
+        <AssetTable />
       </div>
     </div>
   );
 }
 
-function StatsCards() {
+function StatsCards({ count }: { count?: number }) {
   const stats = [
     {
       label: "My Total Assets",
-      value: "0",
+      value: count === undefined ? "—" : String(count),
       icon: Package,
     },
   ];
@@ -54,18 +59,3 @@ function StatsCards() {
   );
 }
 
-function EmptyState() {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-muted/30 py-16 px-6 text-center">
-      <div className="size-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4">
-        <Package className="size-5 text-primary" strokeWidth={1.8} />
-      </div>
-      <h3 className="font-heading text-sm font-semibold mb-1">
-        No assets assigned yet
-      </h3>
-      <p className="text-muted-foreground text-xs max-w-xs mx-auto">
-        When your administrator assigns hardware or software to you, they will appear here.
-      </p>
-    </div>
-  );
-}

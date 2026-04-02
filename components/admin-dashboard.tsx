@@ -14,6 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AssetTable } from "@/components/asset-table";
+import { EmployeeList } from "@/components/employee-list";
+import { EmployeeForm } from "@/components/employee-form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function AdminDashboard() {
   return (
@@ -37,9 +48,11 @@ function DashboardHeader() {
           Overview of your team's inventory and assignments.
         </p>
       </div>
-      <Button size="sm" className="text-xs h-9 px-4 w-fit">
-        <Plus className="size-3.5 mr-1.5" />
-        Add Asset
+      <Button asChild size="sm" className="text-xs h-9 px-4 w-fit">
+        <Link href="/dashboard/assets/new">
+          <Plus className="size-3.5 mr-1.5" />
+          Add Asset
+        </Link>
       </Button>
     </div>
   );
@@ -114,7 +127,7 @@ function AssetTabs() {
       </TabsList>
 
       <TabsContent value="all">
-        <EmptyState />
+        <AssetTable />
       </TabsContent>
       <TabsContent value="hardware">
         <EmptyState type="hardware" />
@@ -122,8 +135,27 @@ function AssetTabs() {
       <TabsContent value="software">
         <EmptyState type="software" />
       </TabsContent>
-      <TabsContent value="employees">
-        <EmptyState type="employees" />
+      <TabsContent value="employees" className="space-y-4">
+        <EmployeeList />
+        <div className="flex justify-center mt-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" className="text-xs h-9 px-4">
+                <Plus className="size-3.5 mr-1.5" />
+                Add Employee
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Employee</DialogTitle>
+                <DialogDescription>
+                  Create a new employee profile to assign assets.
+                </DialogDescription>
+              </DialogHeader>
+              <EmployeeForm />
+            </DialogContent>
+          </Dialog>
+        </div>
       </TabsContent>
     </Tabs>
   );
