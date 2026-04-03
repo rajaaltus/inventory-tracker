@@ -1,14 +1,10 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/src/convex/_generated/api";
 import { Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetTable } from "@/components/asset-table";
 
 export function EmployeeDashboard() {
-  const assets = useQuery(api.assets.list);
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="mb-8">
@@ -20,7 +16,7 @@ export function EmployeeDashboard() {
         </p>
       </div>
 
-      <StatsCards count={assets?.length} />
+      <StatsCards />
 
       <div className="mt-8">
         <AssetTable />
@@ -29,11 +25,11 @@ export function EmployeeDashboard() {
   );
 }
 
-function StatsCards({ count }: { count?: number }) {
+function StatsCards() {
   const stats = [
     {
       label: "My Total Assets",
-      value: count === undefined ? "—" : String(count),
+      value: "—",
       icon: Package,
     },
   ];

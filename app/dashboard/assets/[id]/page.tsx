@@ -7,7 +7,7 @@ import { Id } from "@/src/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AssetForm } from "@/components/asset-form";
-import { Package, Trash2, ArrowLeft } from "lucide-react";
+import { Package, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

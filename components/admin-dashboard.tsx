@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   Package,
   Monitor,
-  Laptop,
   KeyRound,
   Users,
   Plus,
@@ -130,10 +129,10 @@ function AssetTabs() {
         <AssetTable />
       </TabsContent>
       <TabsContent value="hardware">
-        <EmptyState type="hardware" />
+        <AssetTable typeFilter="hardware" />
       </TabsContent>
       <TabsContent value="software">
-        <EmptyState type="software" />
+        <AssetTable typeFilter="software" />
       </TabsContent>
       <TabsContent value="employees" className="space-y-4">
         <EmployeeList />
@@ -158,37 +157,6 @@ function AssetTabs() {
         </div>
       </TabsContent>
     </Tabs>
-  );
-}
-
-function EmptyState({ type = "assets" }: { type?: string }) {
-  const icons: Record<string, typeof Package> = {
-    assets: Package,
-    hardware: Laptop,
-    software: KeyRound,
-    employees: Users,
-  };
-  const Icon = icons[type] ?? Package;
-
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-muted/30 py-16 px-6 text-center">
-      <div className="size-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4">
-        <Icon className="size-5 text-primary" strokeWidth={1.8} />
-      </div>
-      <h3 className="font-heading text-sm font-semibold mb-1">
-        No {type} yet
-      </h3>
-      <p className="text-muted-foreground text-xs max-w-xs mx-auto mb-5">
-        Add your first {type === "employees" ? "team member" : "asset"} to get
-        started tracking your inventory.
-      </p>
-      <Button asChild size="sm" className="text-xs h-8 px-4">
-        <Link href={type === "employees" ? "/dashboard/employees" : "/dashboard/assets/new"}>
-          <Plus className="size-3.5 mr-1.5" />
-          Add {type === "employees" ? "Employee" : "Asset"}
-        </Link>
-      </Button>
-    </div>
   );
 }
 
