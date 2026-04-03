@@ -141,7 +141,7 @@ export function AssetForm({ initialValues, onSuccess }: AssetFormProps) {
           <Label htmlFor="type" className={errors.type ? "text-destructive" : ""}>
             Type <span className="text-destructive">*</span>
           </Label>
-          <Select value={type} onValueChange={(val) => setType(val as any)}>
+          <Select value={type} onValueChange={(val: "hardware" | "software") => setType(val)}>
             <SelectTrigger
               id="type"
               className={errors.type ? "border-destructive focus:ring-destructive" : ""}
@@ -174,7 +174,7 @@ export function AssetForm({ initialValues, onSuccess }: AssetFormProps) {
         {/* Status */}
         <div className="space-y-1.5">
           <Label htmlFor="status">Status</Label>
-          <Select value={status} onValueChange={(val) => setStatus(val as any)}>
+          <Select value={status} onValueChange={(val: "available" | "assigned" | "maintenance" | "retired") => setStatus(val)}>
             <SelectTrigger id="status">
               <SelectValue />
             </SelectTrigger>

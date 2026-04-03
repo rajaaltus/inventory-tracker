@@ -12,7 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 
 // ─── Status badge colour mapping ─────────────────────────────────────────────
@@ -85,9 +84,19 @@ function EmptyAssets() {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function AssetTable() {
+interface AssetTableProps {
+  typeFilter?: "hardware" | "software";
+}
+
+export function AssetTable({ typeFilter }: AssetTableProps) {
   const router = useRouter();
-  const assets = useQuery(api.assets.list);
+  const allAssets = useQuery(api.assets.list);
+
+  const assets = allAssets !== undefined
+    ? typeFilter
+      ? allAssets.filter((a) => a.type === typeFilter)
+      : allAssets
+    : undefined;
 
   // Skeleton while loading
   if (assets === undefined) {
