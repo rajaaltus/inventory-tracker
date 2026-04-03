@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DashboardStats } from "@/components/dashboard-stats";
 import {
   Package,
   Monitor,
@@ -29,7 +30,7 @@ export function AdminDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <DashboardHeader />
-      <StatsCards />
+      <DashboardStats />
       <AssetTabs />
       <RecentActivity />
     </div>
@@ -57,55 +58,6 @@ function DashboardHeader() {
   );
 }
 
-function StatsCards() {
-  const stats = [
-    {
-      label: "Total Assets",
-      value: "—",
-      icon: Package,
-      change: "Start adding assets",
-    },
-    {
-      label: "Assigned",
-      value: "—",
-      icon: Users,
-      change: "No assignments yet",
-    },
-    {
-      label: "Available",
-      value: "—",
-      icon: Monitor,
-      change: "Ready to assign",
-    },
-    {
-      label: "Licenses",
-      value: "—",
-      icon: KeyRound,
-      change: "Software licenses",
-    },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {stats.map((s) => (
-        <Card key={s.label} className="border-border bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-muted-foreground font-medium">
-                {s.label}
-              </span>
-              <s.icon className="size-4 text-muted-foreground/60" strokeWidth={1.8} />
-            </div>
-            <p className="font-heading text-2xl font-bold tracking-tight">
-              {s.value}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">{s.change}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
 
 function AssetTabs() {
   return (
