@@ -128,6 +128,75 @@ export const remove = mutation({
 });
 
 /**
+ * Assign an asset to a user.
+ * - Admin only
+ */
+export const assign = mutation({
+  args: {
+    id: v.id("assets"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const asset = await ctx.db.get(args.id);
+    if (!asset) throw new Error("Asset not found");
+    if (asset.status !== "available" && asset.assignedTo) {
+      throw new Error("Asset is already assigned to someone else");
+    }
+    if (!args.userId) {
+      throw new Error("Please select an employee to assign this asset to");
+    }
+    await ctx.db.patch(args.id, {
+      assignedTo: args.userId,
+      status: "assigned",
+    });
+  },
+});
+
+/**
+ * Reassign an asset to a different user.
+ * - Admin only
+ */
+export const reassign = mutation({
+  args: {
+    id: v.id("assets"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const asset = await ctx.db.get(args.id);
+    if (!asset) throw new Error("Asset not found");
+    // Allow reassign from any status, just ensure it's not to same user
+    if (asset.assignedTo === args.userId) {
+      throw new Error("Asset is already assigned to this employee");
+    }
+    if (!args.userId) {
+      throw new Error("Please select an employee to reassign this asset to");
+    }
+    await ctx.db.patch(args.id, { assignedTo: args.userId });
+    // Status stays "assigned" — no intermediate state
+  },
+});
+
+/**
+ * Unassign an asset from a user.
+ * - Admin only
+ */
+export const unassign = mutation({
+  args: { id: v.id("assets") },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const asset = await ctx.db.get(args.id);
+    if (!asset) throw new Error("Asset not found");
+    if (!asset.assignedTo) throw new Error("Asset is not currently assigned");
+    await ctx.db.patch(args.id, {
+      assignedTo: undefined,
+      status: "available",
+    });
+  },
+});
+
+/**
  * Get a specific asset by ID.
  * - Authenticated users can view their own assets.
  * - Admins can view any asset.

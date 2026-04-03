@@ -1,10 +1,15 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { api } from "@/src/convex/_generated/api";
+import { AssetTable } from "@/components/asset-table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { AssetTable } from "@/components/asset-table";
 
 export function EmployeeDashboard() {
+  const assets = useQuery(api.assets.list);
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="mb-8">
@@ -16,38 +21,50 @@ export function EmployeeDashboard() {
         </p>
       </div>
 
-      <StatsCards />
-
       <div className="mt-8">
-        <AssetTable />
+        {assets === undefined ? (
+          <EmployeeAssetsSkeleton />
+        ) : assets.length === 0 ? (
+          <EmployeeEmptyState />
+        ) : (
+          <AssetTable assets={assets} readonly showSerialNumber />
+        )}
       </div>
     </div>
   );
 }
 
-function StatsCards() {
-  const stats = [
-    {
-      label: "My Total Assets",
-      value: "—",
-      icon: Package,
-    },
-  ];
-
+function EmployeeEmptyState() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {stats.map((s) => (
-        <Card key={s.label} className="border-border bg-card">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-muted-foreground font-medium">
-                {s.label}
-              </span>
-              <s.icon className="size-4 text-muted-foreground/60" strokeWidth={1.8} />
+    <div className="rounded-xl border border-dashed border-border bg-muted/30 py-16 px-6 text-center">
+      <div className="size-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4">
+        <Package className="size-5 text-primary" strokeWidth={1.8} />
+      </div>
+      <h3 className="font-heading text-sm font-semibold mb-1">No assets assigned to you</h3>
+      <p className="text-muted-foreground text-xs max-w-xs mx-auto">
+        Assets that are assigned to you will appear here.
+      </p>
+    </div>
+  );
+}
+
+function EmployeeAssetsSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Card key={i} className="border-border bg-card">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-start">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-6 w-20" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-4 w-36" />
             </div>
-            <p className="font-heading text-2xl font-bold tracking-tight">
-              {s.value}
-            </p>
           </CardContent>
         </Card>
       ))}

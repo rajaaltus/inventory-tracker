@@ -56,7 +56,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ─── Skeleton row ─────────────────────────────────────────────────────────────
-function TableRowSkeleton() {
+function TableRowSkeleton({ showSerialNumber = false }: { showSerialNumber?: boolean }) {
   return (
     <TableRow>
       {[1, 2, 3, 4, 5].map((i) => (
@@ -64,6 +64,11 @@ function TableRowSkeleton() {
           <Skeleton className="h-4 w-full" />
         </TableCell>
       ))}
+      {showSerialNumber && (
+        <TableCell>
+          <Skeleton className="h-4 w-full" />
+        </TableCell>
+      )}
     </TableRow>
   );
 }
@@ -86,17 +91,27 @@ function EmptyAssets() {
 // ─── Main component ───────────────────────────────────────────────────────────
 interface AssetTableProps {
   typeFilter?: "hardware" | "software";
+  assets?: any[]; // Allow passing assets directly (for employee view)
+  readonly?: boolean; // Hide admin actions when true
+  showSerialNumber?: boolean; // Show serial number column when true
 }
 
-export function AssetTable({ typeFilter }: AssetTableProps) {
+export function AssetTable({ 
+  typeFilter, 
+  assets: passedAssets, 
+  readonly = false, 
+  showSerialNumber = false 
+}: AssetTableProps) {
   const router = useRouter();
   const allAssets = useQuery(api.assets.list);
 
-  const assets = allAssets !== undefined
-    ? typeFilter
-      ? allAssets.filter((a) => a.type === typeFilter)
-      : allAssets
-    : undefined;
+  const assets = passedAssets !== undefined
+    ? passedAssets // Use passed assets (employee view)
+    : allAssets !== undefined
+      ? typeFilter
+        ? allAssets.filter((a) => a.type === typeFilter)
+        : allAssets
+      : undefined;
 
   // Skeleton while loading
   if (assets === undefined) {
@@ -108,13 +123,16 @@ export function AssetTable({ typeFilter }: AssetTableProps) {
               <TableHead className="text-xs font-semibold">Name</TableHead>
               <TableHead className="text-xs font-semibold">Type</TableHead>
               <TableHead className="text-xs font-semibold">Category</TableHead>
+              {showSerialNumber && (
+                <TableHead className="text-xs font-semibold">Serial Number</TableHead>
+              )}
               <TableHead className="text-xs font-semibold">Status</TableHead>
               <TableHead className="text-xs font-semibold">Assigned To</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[1, 2, 3, 4, 5].map((i) => (
-              <TableRowSkeleton key={i} />
+              <TableRowSkeleton key={i} showSerialNumber={showSerialNumber} />
             ))}
           </TableBody>
         </Table>
@@ -141,6 +159,11 @@ export function AssetTable({ typeFilter }: AssetTableProps) {
             <TableHead className="text-xs font-semibold text-muted-foreground">
               Category
             </TableHead>
+            {showSerialNumber && (
+              <TableHead className="text-xs font-semibold text-muted-foreground">
+                Serial Number
+              </TableHead>
+            )}
             <TableHead className="text-xs font-semibold text-muted-foreground">
               Status
             </TableHead>
@@ -154,7 +177,7 @@ export function AssetTable({ typeFilter }: AssetTableProps) {
             <TableRow
               key={asset._id}
               className="hover:bg-muted/30 transition-colors cursor-pointer"
-              onClick={() => router.push(`/dashboard/assets/${asset._id}`)}
+              onClick={() => !readonly && router.push(`/dashboard/assets/${asset._id}`)}
             >
               <TableCell className="font-medium text-sm">{asset.name}</TableCell>
               <TableCell>
@@ -165,6 +188,13 @@ export function AssetTable({ typeFilter }: AssetTableProps) {
               <TableCell className="text-sm text-muted-foreground">
                 {asset.category}
               </TableCell>
+              {showSerialNumber && (
+                <TableCell className="text-sm text-muted-foreground">
+                  {asset.serialNumber || (
+                    <span className="italic text-muted-foreground/60">—</span>
+                  )}
+                </TableCell>
+              )}
               <TableCell>
                 <StatusBadge status={asset.status} />
               </TableCell>
