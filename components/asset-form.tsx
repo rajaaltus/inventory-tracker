@@ -98,7 +98,7 @@ export function AssetForm({ initialValues, onSuccess }: AssetFormProps) {
           name: name.trim(),
           type: type as "hardware" | "software",
           category: category.trim(),
-          status,
+          status: "available", // Always create as available
           serialNumber: serialNumber.trim() || undefined,
           purchaseDate: purchaseDate.trim() || undefined,
           notes: notes.trim() || undefined,

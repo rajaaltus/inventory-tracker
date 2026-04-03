@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { getCurrentEmployee, requireAdmin } from "./helpers/auth";
+import { getCurrentEmployee, requireAdmin, requireAuth } from "./helpers/auth";
 import { auth } from "./auth";
 
 /**
@@ -79,7 +79,9 @@ export const current = query({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    await requireAdmin(ctx);
+    // Check if user is authenticated
+    const { userId } = await requireAuth(ctx);
+    
     const employees = await ctx.db.query("employees").collect();
     return Promise.all(
       employees.map(async (emp) => {
