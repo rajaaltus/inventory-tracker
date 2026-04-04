@@ -63,7 +63,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    
+
     return await ctx.db.insert("assets", {
       name: args.name,
       type: args.type,
@@ -217,6 +217,25 @@ export const getById = query({
     return {
       ...asset,
       assignedToName: await joinAssignedName(ctx, asset.assignedTo),
+    };
+  },
+});
+/**
+ * Get summary statistics for assets.
+ * - Admin only.
+ */
+export const getStats = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const assets = await ctx.db.query("assets").collect();
+
+    return {
+      total: assets.length,
+      available: assets.filter((a) => a.status === "available").length,
+      assigned: assets.filter((a) => a.status === "assigned").length,
+      maintenance: assets.filter((a) => a.status === "maintenance").length,
+      retired: assets.filter((a) => a.status === "retired").length,
     };
   },
 });
